@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<meta 
+<html>
+<head>
+  <title>ESP8266 LittleFS WEB SERVER</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <h2>ESP8266 LittleFS WEB SERVER</h2>
+  <div class="content">
+    <div class="card-grid">
+        <div class="card">
+  <p><i class="fas fa-lightbulb fa-2x" style="color:#c81919;"></i> <strong>GPIO2</strong></p>
+  <p>GPIO state: <strong> %GPIO_STATE%</strong></p>
+  <p>
+  <a href="/led2on"><button class="button">ON</button></a>
+  <a href="/led2off"><button class="button button2">OFF</button></a></p>
+
+  
+  </div>
+  </div>
+  </div>
+
+  <input type="number" id="step">
+  <button onclick="manual()">hej</button>
+
+  <script>
+    var prevGas = 0;
+    var prevRevers = 0;
+    var prevStering = 0;
+    
+   function updateGamepad(){
+
+      requestAnimationFrame(updateGamepad);
+      //console.log(window.getGamepads());
+      //navigator.getGamepads
+      var gamePad = navigator.getGamepads()[0];
+
+      //console.log(gamePad.buttons)
+      if (!gamePad) return;
+
+      var gas = gamePad.buttons[7].value.toFixed(1);
+      var revers = gamePad.buttons[6].value.toFixed(1);
+      var stering = gamePad.axes[2].toFixed(1);
+      
+      
+      
+      if (gas != prevGas || revers != prevRevers || stering != prevStering){
+        var data = {gas: gas, revers: revers, stering: stering};
+        prevGas = gas
+        prevRevers= revers
+        prevStering= stering
+        sendDataToESP(data)
+        console.log("gas: " + gas + " revers: " + revers + " stering: " + stering);
+      } else {
+        console.log("dsahdshj")
+      }
+      
+   }
+      /* setInterval(() => {
+        updateGamepad();
+      }, 1000); */
+      updateGamepad();
+    
+     /*  window.addEventListener('gamepadconnected', (event) => {
+        const update = () => {
+          
+
+          const gamepad = navigator.getGamepads()
+          console.log(gamepad);
+          if (!gamepad) return;
+            
+            var gas = (gamepad.axes[5] + 1) / 2;
+            var revers = (gamepad.axes[2] + 1) / 2;
+            var stering = gamepad.axes[3];
+
+            console.log(gas)
+            console.log(gas != ugas || revers != ureverse);
+            if (gas != ugas || revers != ureverse) {
+              ugas = gas;
+              ureverse = revers;
+              
+              //sendDataToESP({gas: gas, revers: revers, stering: stering});
+            }
+
+             
+          
+          requestAnimationFrame(update);
+        };
+        update();
+        }); */
+
+    
+        function manual(){
+          var s = document.getElementById("step");
+          console.log(s.value);
+          sendDataToESP({gas:s.value});
+        }
+
+
+    function sendDataToESP(data){
+      fetch("/controller", {
+        method: "POST",
+        headers:{
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+          });
+    }
+   
+
+  </script>
+</body>
+</html>
