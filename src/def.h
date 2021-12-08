@@ -7,10 +7,10 @@ void drive(int t, int motor);
 int valueX = 0;
 int valueY = 0;
 
-const int M1Step = D0;
-const int M1Dir = D1;
+const int M1PWM = D6;  
+const int M1Dir = D5;
 
-const int M2Step = D2;
+const int M2PWM = D4;
 const int M2Dir = D3;
 void step(int motor);
 

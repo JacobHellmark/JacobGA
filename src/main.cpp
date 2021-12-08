@@ -6,13 +6,11 @@
 #include <ESPAsyncWebServer.h>
 #include "def.h"
 #include <ArduinoJson.h>
-#include <Stepper.h>
 
 FS* filesystem = &LittleFS;
 #define FileFS LittleFS
 // Replace with your network credentials
 
-Stepper stepper(200, M1Step, M1Dir);
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
@@ -51,7 +49,7 @@ void handleBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_
   JsonObject object = doc.as<JsonObject>();
 
   gas = object["gas"];
-  speed = map(gas*10,0,10,100,1000);
+  speed = map(gas,0,1,0,255);
   Serial.println(speed);
   
   //stepper.step(1000);
@@ -68,8 +66,8 @@ void handleBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_
 }
 
 void setup(){
-  pinMode(M1Step,OUTPUT);
-  pinMode(M2Step,OUTPUT);
+  pinMode(M1PWM,OUTPUT);
+  pinMode(M2PWM,OUTPUT);
   pinMode(M1Dir,OUTPUT);
   pinMode(M2Dir,OUTPUT);
 
@@ -145,18 +143,9 @@ void drive(int t, int motor){
 
 void loop(){
   if (gas > 0){
-    stepper.step(1);
+    analogWrite(M1PWM, speed);
+    analogWrite(M2PWM, speed);
   }  
   
-  if (speed > currentSpeed){
-    currentSpeed += 1;
-    stepper.setSpeed(currentSpeed); 
 
-  } else if(speed < currentSpeed){
-    currentSpeed -= 1;
-    stepper.setSpeed(currentSpeed);
-    
-  }
-  
-  
 }
